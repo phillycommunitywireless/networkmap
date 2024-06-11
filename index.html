@@ -132,11 +132,18 @@
               <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/high_sites.png"> High Sites
             </label>
             <label class='checkbox-container'>
+              <input type='checkbox' id="layer4" checked/>
+              <div class='checkbox mr6 checkbox--s-label'>
+                <svg class='icon'><use xlink:href='#icon-check' /></svg>
+              </div>
+              <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/Rooftophubs2.png"> Main Router
+            </label>
+            <label class='checkbox-container'>
               <input type='checkbox' id="layer2" checked/>
               <div class='checkbox mr6 checkbox--s-label'>
                 <svg class='icon'><use xlink:href='#icon-check' /></svg>
               </div>
-              <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/RooftopHub.png"> Rooftop Hubs
+              <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/RooftopHub.png"> Access Points
             </label>
             <label class='checkbox-container'>
               <input type='checkbox' id="layer3" checked/>
@@ -144,13 +151,6 @@
                 <svg class='icon'><use xlink:href='#icon-check' /></svg>
               </div>
               <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/icon1.png"> Mesh Nodes
-            </label>
-            <label class='checkbox-container'>
-              <input type='checkbox' id="layer4" checked/>
-              <div class='checkbox mr6 checkbox--s-label'>
-                <svg class='icon'><use xlink:href='#icon-check' /></svg>
-              </div>
-              <img class="layer-icon" src="https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/Rooftophubs2.png"> New Points
             </label>
             <label class='checkbox-container'>
               <input type='checkbox' id="layer5" />
@@ -275,12 +275,12 @@
                 'LB','LB_icon',
                 'default-icon'
             ],
-            'icon-size': ['interpolate', ['linear'], ['zoom'], 0, 0.01, 17, 0.7],
-            'icon-allow-overlap': true,
+            'icon-size': ['interpolate', ['linear'], ['zoom'], 0, 0.01, 17, 0.45],
+            'icon-allow-overlap': false,
             'icon-ignore-placement': true,        
             },
         'paint': {
-              'icon-opacity': 0.9,
+              'icon-opacity': 0.85,
               'text-halo-color': 'rgb(255, 255, 255)',
               'text-halo-width': 2,
               'text-halo-blur': 0.5,
@@ -295,8 +295,9 @@
             minzoom: 13,
             paint: {
                 'line-color': 'lime',
-                'line-width': 4,
-                'line-dasharray': [0, 4, 3]
+                'line-width': 2,
+                'line-dasharray': [0, 4, 3],
+                'line-opacity':0.65,
             }
         });
 
@@ -323,7 +324,7 @@
             paint: {
               'line-color': 'magenta',
               'line-width': 4,
-              'line-dasharray': [0, 4, 3]
+              'line-opacity':0.65,
             }
           });
 
@@ -334,9 +335,10 @@
             visibility: 'none',
             minzoom: 13,
             paint: {
-              'line-color': 'magenta',
-              'line-width': 4,
-              'line-dasharray': [0, 4, 3]
+              'line-color': 'yellow',
+              'line-width': 3,
+              'line-dasharray': [0, 4, 3],
+              'line-opacity':0.65,
             }
           });
 
@@ -377,6 +379,25 @@
 
         const dashArraySequence2 = [
             [0, 4, 3],
+        ];
+
+        let step2 = 0;
+
+        function animateNewLine(timestamp) {
+             //Update line-dasharray using the next value in dashArraySequence for the new layer.
+            const newStep2 = parseInt((timestamp / 200) % dashArraySequence2.length);
+
+            if (newStep2 !== step2) {
+                map.setPaintProperty('new-line-dashed', 'line-dasharray', dashArraySequence2[step2]);
+                step2 = newStep2;
+            }
+
+             // Request the next frame of the animation.
+            requestAnimationFrame(animateNewLine);
+        }
+
+        const dashArraySequence3 = [
+            [0, 4, 3],
             [0.5, 4, 2.5],
             [1, 4, 2],
             [1.5, 4, 1.5],
@@ -392,32 +413,19 @@
             [0, 3.5, 3, 0.5]
         ];
 
-        let step2 = 0;
-
-        function animateNewLine(timestamp) {
-            // Update line-dasharray using the next value in dashArraySequence for the new layer.
-            const newStep2 = parseInt((timestamp / 200) % dashArraySequence2.length);
-
-            if (newStep2 !== step2) {
-                map.setPaintProperty('new-line-dashed', 'line-dasharray', dashArraySequence2[step2]);
-                step2 = newStep2;
-            }
-
-            // Request the next frame of the animation.
-            requestAnimationFrame(animateNewLine);
-        }
+        let step3 = 0;
 
         function animateNewLine2(timestamp) {
             // Update line-dasharray using the next value in dashArraySequence for the new layer.
-            const newStep2 = parseInt((timestamp / 200) % dashArraySequence2.length);
+            const newStep3 = parseInt((timestamp / 200) % dashArraySequence3.length);
 
-            if (newStep2 !== step2) {
-                map.setPaintProperty('new-line-dashed2', 'line-dasharray2', dashArraySequence2[step2]);
-                step2 = newStep2;
+            if (newStep3 !== step3) {
+                map.setPaintProperty('new-line-dashed2', 'line-dasharray', dashArraySequence3[step3]);
+                step3 = newStep3;
             }
 
             // Request the next frame of the animation.
-            requestAnimationFrame(animateNewLine);
+            requestAnimationFrame(animateNewLine2);
         }
 
         // Start the animations
