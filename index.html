@@ -205,10 +205,10 @@
     });
     
     const images =[
-        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/main/icons/high_sites.png', id: 'HS_icon'},
-        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/main/icons/RooftopHub.png', id: 'RH_icon'},
-        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/main/icons/icon1.png', id: 'MN_icon'},
-        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/main/icons/Rooftophubs2.png', id: 'LB_icon'},
+        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/high_sites.png', id: 'HS_icon'},
+        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/RooftopHub.png', id: 'RH_icon'},
+        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/icon1.png', id: 'MN_icon'},
+        {imageUrl: 'https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/toggle_key/icons/Rooftophubs2.png', id: 'LB_icon'},
         ]
 
         Promise.all(
@@ -412,7 +412,7 @@
             const newStep2 = parseInt((timestamp / 200) % dashArraySequence2.length);
 
             if (newStep2 !== step2) {
-                map.setPaintProperty('new-line-dashed2', 'line-dasharray', dashArraySequence2[step2]);
+                map.setPaintProperty('new-line-dashed2', 'line-dasharray2', dashArraySequence2[step2]);
                 step2 = newStep2;
             }
 
@@ -481,6 +481,13 @@ newLayerCheckbox.addEventListener('change', () => {
   toggleNewLine();
 });
 
+// Add event listener to the checkbox input for level 3 layer
+const newLayerCheckbox2 = document.getElementById('toggleNetworkLinks3');
+newLayerCheckbox2.addEventListener('change', () => {
+  toggleNewLine2();
+});
+
+
 function toggleNewLine() {
   const newLineBackgroundLayer = map.getLayer('new-line-background');
   const newLineDashedLayer = map.getLayer('new-line-dashed');
@@ -500,11 +507,11 @@ function toggleNewLine() {
 }
 
 function toggleNewLine2() {
-  const newLineBackgroundLayer = map.getLayer('new-line-background2');
-  const newLineDashedLayer = map.getLayer('new-line-dashed2');
+  const newLineBackgroundLayer2 = map.getLayer('new-line-background2');
+  const newLineDashedLayer2 = map.getLayer('new-line-dashed2');
 
   // If the checkbox is checked, make both layers visible and start the animation
-  if (newLayerCheckbox.checked) {
+  if (newLayerCheckbox2.checked) {
     map.setLayoutProperty('new-line-background2', 'visibility', 'visible');
     map.setLayoutProperty('new-line-dashed2', 'visibility', 'visible');
     step2 = 0;
@@ -516,6 +523,7 @@ function toggleNewLine2() {
     cancelAnimationFrame(animateNewLine2);
   }
 }
+
 
 const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false });
 
