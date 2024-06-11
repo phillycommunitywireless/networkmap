@@ -407,9 +407,23 @@
             requestAnimationFrame(animateNewLine);
         }
 
+        function animateNewLine2(timestamp) {
+            // Update line-dasharray using the next value in dashArraySequence for the new layer.
+            const newStep2 = parseInt((timestamp / 200) % dashArraySequence2.length);
+
+            if (newStep2 !== step2) {
+                map.setPaintProperty('new-line-dashed2', 'line-dasharray', dashArraySequence2[step2]);
+                step2 = newStep2;
+            }
+
+            // Request the next frame of the animation.
+            requestAnimationFrame(animateNewLine);
+        }
+
         // Start the animations
         animateDashArray(0);
         animateNewLine(0);
+        animateNewLine2(0);
 
       map.setLayoutProperty(heatmapLayer.id, 'visibility', 'none');
       map.setLayoutProperty('line-background', 'visibility', 'none');
@@ -482,6 +496,24 @@ function toggleNewLine() {
     map.setLayoutProperty('new-line-background', 'visibility', 'none');
     map.setLayoutProperty('new-line-dashed', 'visibility', 'none');
     cancelAnimationFrame(animateNewLine);
+  }
+}
+
+function toggleNewLine2() {
+  const newLineBackgroundLayer = map.getLayer('new-line-background2');
+  const newLineDashedLayer = map.getLayer('new-line-dashed2');
+
+  // If the checkbox is checked, make both layers visible and start the animation
+  if (newLayerCheckbox.checked) {
+    map.setLayoutProperty('new-line-background2', 'visibility', 'visible');
+    map.setLayoutProperty('new-line-dashed2', 'visibility', 'visible');
+    step2 = 0;
+    animateNewLine2(0); // Start the animation
+  } else {
+    // Otherwise, make both layers invisible
+    map.setLayoutProperty('new-line-background2', 'visibility', 'none');
+    map.setLayoutProperty('new-line-dashed2', 'visibility', 'none');
+    cancelAnimationFrame(animateNewLine2);
   }
 }
 
@@ -577,7 +609,7 @@ fetch('https://raw.githubusercontent.com/phillycommunitywireless/pcwnetworkmap/m
     .then(response => response.json())
     .then(data => {
       // Filter features by the "type" property
-      const filteredData = data.features.filter(feature => feature.properties.type === 'RH' || feature.properties.type === 'MN');
+      const filteredData = data.features.filter(feature => feature.properties.type === 'RH' || feature.properties.type === 'MN' || feature.properties.type === 'LB');
 
       // Create a new GeoJSON object with the filtered features
       const filteredGeoJSON = {
@@ -709,14 +741,14 @@ layer3Checkbox.addEventListener('change', () => {
   updatePointsVisibility();
 });
 
-const layer3Checkbox = document.getElementById('layer4');
-layer3Checkbox.addEventListener('change', () => {
+const layer4Checkbox = document.getElementById('layer4');
+layer4Checkbox.addEventListener('change', () => {
   visibilityStatus.LB = layer4Checkbox.checked;
   updatePointsVisibility();
 });
 
 // Add event listener to the checkbox input for heatmap layer
-const layer4Checkbox = document.getElementById('layer5');
+const layer5Checkbox = document.getElementById('layer5');
 layer5Checkbox.addEventListener('change', () => {
   toggleHeatmapLayer();
 });
