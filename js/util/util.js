@@ -37,7 +37,7 @@ const defaultColor = {
 		'#00ff00', // Green
 	],
 	invert: false,
-}
+};
 /**
  * Generates a linear, interpolated gradient from geojson data for `paint.fill-color`
  *
@@ -48,20 +48,12 @@ const defaultColor = {
  * @param {boolean} [param2.invert] - if true, inverts the colorSteps array
  * @param {string} [param2.undefColor] - default gray #80
  */
-export const createRangeColorExpression = (
-	data,
-	value_id,
-	coloring
-) => {
-	const {
-		undefColor,
-		colorSteps,
-		invert,
-	} = {
+export const createRangeColorExpression = (data, value_id, coloring) => {
+	const {undefColor, colorSteps, invert} = {
 		...defaultColor,
-		...coloring
+		...coloring,
 	};
-	
+
 	if (!data?.features?.[0]?.properties?.hasOwnProperty(value_id)) {
 		throw ReferenceError("Feature data doesn't contain the expected value_id");
 	}
@@ -92,37 +84,47 @@ export const createRangeColorExpression = (
 /**
  * Generates a random color from geojson data for 'fill-color' prop
  *
- * @param {GeoJSON} data
- * @param {string} data_id
+ * @param {GeoJSON} geo_data
+ * @param {string} feature_id_key
  * @returns {string[]}
  */
-export const createRandomColorExpression = (data, data_id) => {
-	const colorExpression = ['match', ['to-number', ['get', data_id]]];
-	if (!data?.features?.[0]?.properties?.hasOwnProperty(data_id)) {
-		throw ReferenceError("feature data doesn't contain the expected data_id");
+export const createRandomColorExpression = (geo_data, feature_id_key) => {
+	if (!geo_data?.features?.[0]?.properties?.hasOwnProperty(feature_id_key)) {
+		throw ReferenceError(
+			"feature data doesn't contain the expected feature_id"
+		);
 	}
-	data.features.forEach((feature) => {
-		const id = feature.properties[data_id];
+	if (Number.isNaN(geo_data.features[0].properties[feature_id_key])) {
+		throw TypeError(
+			'feature_id must be a number for colorExpression. Try #assignNumericFeatureUUID'
+		);
+	}
+	const colorExpression = [];
+	geo_data.features.forEach((feature) => {
+		const id = feature.properties[feature_id_key];
 		// Generate random hex color
 		const color = '#000000'.replace(/0/g, () =>
 			(~~(Math.random() * 16)).toString(16)
 		);
 		colorExpression.push(id, color);
 	});
-	colorExpression.push('#000000'); // to handle "undefined"
-	return colorExpression;
+	colorExpression.push('#808080'); // for undef
+
+	return ['match', ['to-number', ['get', feature_id_key]]].concat(
+		colorExpression
+	);
 };
 
 /**
  * Generates centroid from geojson data for use as label anchors, etc.
  *
  * @param {GeoJSON} data
- * @param {string} data_id
+ * @param {string} feature_id_key
  * @param {string | (feature: FeatureData) => string} label_ref - if a string, provide the key within the properties obj
  * @returns {FeatureData}
  */
-export const generateCentroids = (data, data_id, label_ref) => {
-	if (!data?.features?.[0]?.properties?.hasOwnProperty(data_id)) {
+export const generateCentroids = (data, feature_id_key, label_ref) => {
+	if (!data?.features?.[0]?.properties?.hasOwnProperty(feature_id_key)) {
 		throw ReferenceError("feature data doesn't contain the expected data_id");
 	}
 	return data.features.map((feature) => {
@@ -134,7 +136,7 @@ export const generateCentroids = (data, data_id, label_ref) => {
 		return {
 			type: 'Feature',
 			properties: {
-				id: feature.properties[data_id],
+				id: feature.properties[feature_id_key],
 				label,
 			},
 			geometry: centroid.geometry,
@@ -205,4 +207,19 @@ export const generateLabelFromNeighborhood = (feature, event) => {
 			turf.booleanPointInPolygon(point, feature)
 		);
 	return neighborhood?.properties.name || zoneId;
+};
+
+/**
+ * adds a numeric id as feature.properties.id using basic index mapping
+ *
+ * mutates and returns passed data
+ *
+ * @param {GeoJSON} data
+ * @returns {GeoJSON}
+ */
+export const assignFeatureID = (data) => {
+	data.features.forEach((f, i) => {
+		f.properties.id = i;
+	});
+	return data;
 };
